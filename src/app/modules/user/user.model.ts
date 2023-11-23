@@ -1,4 +1,7 @@
-import mongoose, { Schema } from "mongoose"
+/* eslint-disable @typescript-eslint/no-this-alias */
+import bcrypt from "bcrypt"
+import mongoose, { MongooseError, Schema } from "mongoose"
+import config from "../../config"
 import { TAddress, TFullName, TOrder, TUser } from "./user.interface"
 
 const fullNameSchema = new Schema<TFullName>({
@@ -21,14 +24,49 @@ const orderSchema = new Schema<TOrder>({
 const userSchema = new Schema<TUser>({
   userId: { type: Number, unique: true },
   username: { type: String, unique: true },
-  password: { type: String },
+  password: {
+    type: String,
+    maxlength: [20, "Password can not be more than 20 characters"],
+  },
   fullName: { type: fullNameSchema },
   age: { type: Number },
-  email: { type: String, unique: true },
-  isActive: { type: Boolean },
+  email: { type: String },
+  isActive: { type: Boolean, default: true },
   hobbies: [{ type: String }],
   address: { type: addressSchema },
   orders: [{ type: orderSchema }],
+})
+
+userSchema.pre("save", async function (next) {
+  const user = this
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  )
+  next()
+})
+
+userSchema.post("save", async function (doc, next) {
+  try {
+    await User.updateOne({ _id: doc._id }, { $unset: { password: 1 } })
+    const updatedDoc = await User.findById(doc._id)
+    if (updatedDoc) {
+      Object.assign(doc, updatedDoc)
+    }
+
+    next()
+  } catch (error) {
+    next(error as MongooseError)
+  }
+})
+userSchema.post(/^find/, async function (doc, next) {
+  try {
+    await User.updateOne({ _id: doc._id }, { $unset: { password: 1 } })
+
+    next()
+  } catch (error) {
+    next(error as MongooseError)
+  }
 })
 
 export const User = mongoose.model("User", userSchema)
