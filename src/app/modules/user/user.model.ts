@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import bcrypt from "bcrypt"
-import mongoose, { MongooseError, Schema } from "mongoose"
+import { MongooseError, Schema, model } from "mongoose"
 import config from "../../config"
-import { TAddress, TFullName, TOrder, TUser } from "./user.interface"
+import { TAddress, TFullName, TOrder, TUser, UserModel } from "./user.interface"
 
 const fullNameSchema = new Schema<TFullName>({
   firstName: { type: String },
@@ -21,7 +21,7 @@ const orderSchema = new Schema<TOrder>({
   quantity: { type: Number },
 })
 
-const userSchema = new Schema<TUser>({
+const userSchema = new Schema<TUser, UserModel>({
   userId: { type: Number, unique: true },
   username: { type: String, unique: true },
   password: {
@@ -69,4 +69,10 @@ userSchema.post(/^find/, async function (doc, next) {
   }
 })
 
-export const User = mongoose.model("User", userSchema)
+userSchema.statics.isUserExists = async function (
+  userId: number,
+): Promise<TUser | null> {
+  const existingUser = await User.findById({ userId: userId })
+  return existingUser
+}
+export const User = model<TUser, UserModel>("User", userSchema)

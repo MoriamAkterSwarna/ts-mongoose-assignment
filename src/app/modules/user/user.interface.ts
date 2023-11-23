@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Model } from "mongoose"
+
 export type TFullName = {
   firstName: string
   lastName: string
@@ -26,4 +29,7 @@ export type TUser = {
   hobbies: string[]
   address: TAddress
   orders: TOrder[]
+}
+export interface UserModel extends Model<TUser> {
+  isUserExists(userId: number): Promise<TUser | null>
 }
