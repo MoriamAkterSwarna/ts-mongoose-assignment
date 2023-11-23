@@ -1,8 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-this-alias */
 import bcrypt from "bcrypt"
 import { MongooseError, Schema, model } from "mongoose"
 import config from "../../config"
-import { TAddress, TFullName, TOrder, TUser, UserModel } from "./user.interface"
+import {
+  TAddress,
+  TFullName,
+  TOrder,
+  TUser,
+  UserMethod,
+  UserModel,
+} from "./user.interface"
 
 const fullNameSchema = new Schema<TFullName>({
   firstName: { type: String },
@@ -21,7 +29,7 @@ const orderSchema = new Schema<TOrder>({
   quantity: { type: Number },
 })
 
-const userSchema = new Schema<TUser, UserModel>({
+const userSchema = new Schema<TUser, UserModel, UserMethod>({
   userId: { type: Number, unique: true },
   username: { type: String, unique: true },
   password: {
@@ -48,20 +56,10 @@ userSchema.pre("save", async function (next) {
 
 userSchema.post("save", async function (doc, next) {
   try {
-    await User.updateOne({ _id: doc._id }, { $unset: { password: 1 } })
-    const updatedDoc = await User.findById(doc._id)
-    if (updatedDoc) {
-      Object.assign(doc, updatedDoc)
+    const user = await User.findById(doc._id).select("-password")
+    if (user) {
+      Object.assign(doc, user)
     }
-
-    next()
-  } catch (error) {
-    next(error as MongooseError)
-  }
-})
-userSchema.post(/^find/, async function (doc, next) {
-  try {
-    await User.updateOne({ _id: doc._id }, { $unset: { password: 1 } })
 
     next()
   } catch (error) {
@@ -70,9 +68,13 @@ userSchema.post(/^find/, async function (doc, next) {
 })
 
 // userSchema.statics.isUserExists = async function (
-//   email: string,
+//   userId: any,
 // ): Promise<TUser | null> {
-//   const existingUser = await User.findById({ email: email })
+//   const existingUser = await User.findById(userId)
 //   return existingUser
 // }
+userSchema.methods.isUserExists = async function (userId: any) {
+  const existingUser = await User.findOne({ userId })
+  return existingUser
+}
 export const User = model<TUser, UserModel>("User", userSchema)

@@ -30,6 +30,12 @@ export type TUser = {
   address: TAddress
   orders: TOrder[]
 }
-export interface UserModel extends Model<TUser> {
-  isUserExists(email: string): Promise<TUser | null>
+// export interface UserModel extends Model<TUser> {
+//   isUserExists(userId: any): Promise<TUser | null>
+// }
+//for creating custom instance
+export type UserMethod = {
+  isUserExists(userId: any): Promise<TUser | null>
 }
+
+export type UserModel = Model<TUser, Record<string, never>, UserMethod>

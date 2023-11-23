@@ -3,7 +3,19 @@ import { TOrder, TUser } from "./user.interface"
 import { User } from "./user.model"
 
 const createUserDB = async (userData: TUser) => {
-  const result = await User.create(userData)
+  console.log(userData.userId)
+  // if (await User.isUserExists(new mongoose.Types.ObjectId(userData.userId))) {
+  //   throw new Error("User already exists")
+  // }
+  // const result = await User.create(userData)
+  const user = new User(userData) // create an instance
+
+  // using custom instance
+  if (await user.isUserExists(userData.userId)) {
+    throw new Error("user already exists")
+  }
+  const result = await user.save() // built in instance method
+  console.log(userData.userId)
   return result
 }
 const getAllUserFromDB = async () => {
@@ -64,27 +76,8 @@ const getOrdersFromDB = async (id: string) => {
   console.log(result, "result")
   return result
 }
-// const getTotalPriceDB = async (id: string) => {
-//   console.log(id, "id")
-//   // const totalPrice = await User.aggregate([
-//   //   { $match: { _id: id } },
-//   //   { $unwind: "$orders" },
-//   //   {
-//   //     $group: {
-//   //       _id: "$_id",
-//   //       totalPrice: {
-//   //         $sum: { $multiply: ["$orders.price", "$orders.quantity"] },
-//   //       },
-//   //     },
-//   //   },
-//   //   { $project: { _id: 1, totalPrice: 1, orders: 1 } },
-//   // ])
-//   // console.log(totalPrice)
-//   // return totalPrice
-// }
 const getTotalPriceDB = async (id: string) => {
   const result = await User.aggregate([
-    // { $match: { _id: new mongoose.Types.ObjectId(id) } },
     { $match: { _id: new mongoose.Types.ObjectId(id) } },
     { $unwind: "$orders" },
     {
