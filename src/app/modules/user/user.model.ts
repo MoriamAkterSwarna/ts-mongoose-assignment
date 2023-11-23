@@ -69,10 +69,10 @@ userSchema.post(/^find/, async function (doc, next) {
   }
 })
 
-userSchema.statics.isUserExists = async function (
-  userId: number,
-): Promise<TUser | null> {
-  const existingUser = await User.findById({ userId: userId })
-  return existingUser
-}
+// userSchema.statics.isUserExists = async function (
+//   email: string,
+// ): Promise<TUser | null> {
+//   const existingUser = await User.findById({ email: email })
+//   return existingUser
+// }
 export const User = model<TUser, UserModel>("User", userSchema)

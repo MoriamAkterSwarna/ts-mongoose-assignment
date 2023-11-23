@@ -31,5 +31,5 @@ export type TUser = {
   orders: TOrder[]
 }
 export interface UserModel extends Model<TUser> {
-  isUserExists(userId: number): Promise<TUser | null>
+  isUserExists(email: string): Promise<TUser | null>
 }

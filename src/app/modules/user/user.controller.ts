@@ -65,6 +65,7 @@ const getSingleUser = async (req: Request, res: Response) => {
 const updateSingleUser = async (req: Request, res: Response) => {
   try {
     const user = req.body
+    console.log(req.params)
     const id = req.params.userId
 
     const result = await UserServices.updateUserFromDB(id, user)
@@ -107,6 +108,7 @@ const addOrder = async (req: Request, res: Response) => {
   try {
     const { productName, price, quantity } = req.body
     const id = req.params.userId
+    // console.log(req.params, "params")
 
     const result = await UserServices.addOrdersToDB(id, [
       { productName, price, quantity },
@@ -128,10 +130,13 @@ const addOrder = async (req: Request, res: Response) => {
 }
 const getOrder = async (req: Request, res: Response) => {
   try {
-    const id = req.params.id
+    const id = req.params.userId
     const result = await UserServices.getOrdersFromDB(id)
+    if (!result) {
+      throw new Error("Failed to fetch orders.")
+    }
 
-    const orders = result?.orders
+    const orders = result.orders
 
     res.status(200).json({
       success: true,
@@ -142,7 +147,27 @@ const getOrder = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || "User not Found",
+      message: error.message || "Order not Found",
+      error: error,
+    })
+  }
+}
+const getTotalPrice = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.userId
+    const result = await UserServices.getTotalPriceDB(id)
+    console.log(result, "res con")
+
+    res.status(200).json({
+      success: true,
+      message: "Total Price Calculated successfully!",
+      data: result,
+    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Total price not Found",
       error: error,
     })
   }
@@ -155,4 +180,5 @@ export const UserController = {
   deleteUser,
   addOrder,
   getOrder,
+  getTotalPrice,
 }
