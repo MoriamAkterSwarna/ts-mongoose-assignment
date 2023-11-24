@@ -64,10 +64,9 @@ const getSingleUser = async (req: Request, res: Response) => {
 const updateSingleUser = async (req: Request, res: Response) => {
   try {
     const user = req.body
-    console.log(req.params)
-    const id = req.params.userId
+    const { userId } = req.params
 
-    const result = await UserServices.updateUserFromDB(id, user)
+    const result = await UserServices.updateUserFromDB(userId, user)
 
     res.status(200).json({
       success: true,
@@ -85,8 +84,8 @@ const updateSingleUser = async (req: Request, res: Response) => {
 }
 const deleteUser = async (req: Request, res: Response) => {
   try {
-    const id = req.params.userId
-    const result = await UserServices.deleteUserFromDB(id)
+    const { userId } = req.params
+    const result = await UserServices.deleteUserFromDB(userId)
 
     res.status(200).json({
       success: true,
@@ -106,9 +105,9 @@ const deleteUser = async (req: Request, res: Response) => {
 const addOrder = async (req: Request, res: Response) => {
   try {
     const { productName, price, quantity } = req.body
-    const id = req.params.userId
+    const { userId } = req.params
 
-    const result = await UserServices.addOrdersToDB(id, [
+    const result = await UserServices.addOrdersToDB(userId, [
       { productName, price, quantity },
     ])
 
@@ -128,8 +127,8 @@ const addOrder = async (req: Request, res: Response) => {
 }
 const getOrder = async (req: Request, res: Response) => {
   try {
-    const id = req.params.userId
-    const result = await UserServices.getOrdersFromDB(id)
+    const { userId } = req.params
+    const result = await UserServices.getOrdersFromDB(userId)
     if (!result) {
       throw new Error("Failed to fetch orders.")
     }
@@ -152,8 +151,8 @@ const getOrder = async (req: Request, res: Response) => {
 }
 const getTotalPrice = async (req: Request, res: Response) => {
   try {
-    const id = req.params.userId
-    const result = await UserServices.getTotalPriceDB(id)
+    const { userId } = req.params
+    const result = await UserServices.getTotalPriceDB(userId)
 
     res.status(200).json({
       success: true,

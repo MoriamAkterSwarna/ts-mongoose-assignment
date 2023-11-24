@@ -1,4 +1,3 @@
-import mongoose from "mongoose"
 import { TOrder, TUser } from "./user.interface"
 import { User } from "./user.model"
 
@@ -35,29 +34,40 @@ const updateUserFromDB = async (
   id: string,
   userData: TUser,
 ): Promise<TUser | null> => {
-  const result = await User.findByIdAndUpdate(id, userData, {
+  const userIdNumber = Number(id)
+  if (!(await User?.isUserExists(userIdNumber))) {
+    throw new Error("user do not exist")
+  }
+  const result = await User.findOneAndUpdate({ userId: id }, userData, {
     new: true,
     runValidators: true,
-  })
+  }).select("-orders -password")
   return result
 }
 const deleteUserFromDB = async (id: string) => {
-  const result = await User.findByIdAndDelete(id)
+  const userIdNumber = Number(id)
+  if (!(await User?.isUserExists(userIdNumber))) {
+    throw new Error("user do not exist")
+  }
+  const result = await User.findOneAndDelete({ userId: id })
   return result
 }
 const addOrdersToDB = async (
   id: string,
   orderData: TOrder[],
 ): Promise<TOrder[] | null> => {
-  // console.log(id, orderData)
+  const userIdNumber = Number(id)
+  if (!(await User?.isUserExists(userIdNumber))) {
+    throw new Error("user do not exist")
+  }
+  const user = await User.findOne({ userId: id })
 
-  const user = await User.findById(id)
   if (!user) {
     throw new Error("User not found")
   }
 
   const updatedUser = await User.updateOne(
-    { _id: id },
+    { userId: id },
     { $push: { orders: { $each: orderData } } },
   )
 
@@ -65,22 +75,26 @@ const addOrdersToDB = async (
     throw new Error("Failed to update orders")
   }
 
-  // Fetch the updated user to get the updated orders
-  const updatedUserWithOrders = await User.findById(id)
+  const updatedUserWithOrders = await User.findOne({ userId: id })
   return updatedUserWithOrders?.orders || null
 }
 const getOrdersFromDB = async (id: string) => {
-  const result = await User.findOne({ _id: id })
-  // console.log(result, "result")
+  const result = await User.findOne({ userId: id })
   return result
 }
 const getTotalPriceDB = async (id: string) => {
+  const userIdNumber = Number(id)
+  if (!(await User?.isUserExists(userIdNumber))) {
+    throw new Error("user do not exist")
+  }
+  const user = await User.findOne({ userId: id })
+  console.log(user, "user")
   const result = await User.aggregate([
-    { $match: { _id: new mongoose.Types.ObjectId(id) } },
+    { $match: { userId: userIdNumber } },
     { $unwind: "$orders" },
     {
       $group: {
-        _id: "$_id",
+        _id: "$userId",
         totalPrice: {
           $sum: { $multiply: ["$orders.price", "$orders.quantity"] },
         },
@@ -88,7 +102,7 @@ const getTotalPriceDB = async (id: string) => {
     },
   ])
 
-  // console.log(result, "result")
+  console.log(result, "result")
   return result[0]?.totalPrice || 0
 }
 export const UserServices = {
