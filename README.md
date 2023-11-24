@@ -1,3 +1,7 @@
+# Setup project and Run on locally
+
+## Full Process
+
 1. **Step 1:** Create a new folder for the project and open it in VS Code. run on terminal `npm init -y` create package.json file.
 2. **Step2:**
 
@@ -86,7 +90,9 @@ dist
 ```
 
 13. **Step13:** **format code ⇒ `npx prettier --write src/index.ts`**
+
 14. **Step14:** add format in package.json `"prettier": "prettier --ignore-path .gitignore --write \"./src/**/*.+(js|ts|json)\"",`
+
 15. **Step15:** **you can open your command palette (`Command` + `Shift` + `P`) and look for `Preferences: Open User Settings (JSON)`.**
 
 ```
@@ -99,6 +105,9 @@ dist
 ```
 
 16. **Step16:** **Avoiding conflicts when working with ESLint and Prettier ⇒** **`npm install --save-dev eslint-config-prettier`**
+
 17. **Step17:** replace extends in .eslintrc ⇒ **`"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],`**
+
 18. **Step18:** install ts node dev ⇒ `npm i ts-node-dev --save-dev`
+
 19. **Step19:** run server ⇒ `ts-node-dev --respawn --transpile-only server.ts`
