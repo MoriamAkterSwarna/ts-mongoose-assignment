@@ -3,19 +3,10 @@ import { TOrder, TUser } from "./user.interface"
 import { User } from "./user.model"
 
 const createUserDB = async (userData: TUser) => {
-  console.log(userData.userId)
-  // if (await User.isUserExists(new mongoose.Types.ObjectId(userData.userId))) {
-  //   throw new Error("User already exists")
-  // }
-  // const result = await User.create(userData)
-  const user = new User(userData) // create an instance
-
-  // using custom instance
-  if (await user.isUserExists(userData.userId)) {
+  if (await User?.isUserExists(userData.userId)) {
     throw new Error("user already exists")
   }
-  const result = await user.save() // built in instance method
-  console.log(userData.userId)
+  const result = await User.create(userData)
   return result
 }
 const getAllUserFromDB = async () => {
@@ -29,8 +20,15 @@ const getAllUserFromDB = async () => {
 
   return result
 }
-const getSingleUserFromDB = async (id: string) => {
-  const result = await User.findOne({ id })
+const getSingleUserFromDB = async (userId: string) => {
+  console.log({ userId })
+  const userIdNumber = Number(userId)
+  if (!(await User?.isUserExists(userIdNumber))) {
+    throw new Error("user do not exist")
+  }
+  const result = await User.findOne({ userId: userId }).select(
+    "-orders -password",
+  )
   return result
 }
 const updateUserFromDB = async (
@@ -73,7 +71,7 @@ const addOrdersToDB = async (
 }
 const getOrdersFromDB = async (id: string) => {
   const result = await User.findOne({ _id: id })
-  console.log(result, "result")
+  // console.log(result, "result")
   return result
 }
 const getTotalPriceDB = async (id: string) => {
@@ -90,6 +88,7 @@ const getTotalPriceDB = async (id: string) => {
     },
   ])
 
+  // console.log(result, "result")
   return result[0]?.totalPrice || 0
 }
 export const UserServices = {

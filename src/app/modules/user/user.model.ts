@@ -3,44 +3,38 @@
 import bcrypt from "bcrypt"
 import { MongooseError, Schema, model } from "mongoose"
 import config from "../../config"
-import {
-  TAddress,
-  TFullName,
-  TOrder,
-  TUser,
-  UserMethod,
-  UserModel,
-} from "./user.interface"
+import { TAddress, TFullName, TOrder, TUser, UserModel } from "./user.interface"
 
 const fullNameSchema = new Schema<TFullName>({
-  firstName: { type: String },
-  lastName: { type: String },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
 })
 
 const addressSchema = new Schema<TAddress>({
-  street: { type: String },
-  city: { type: String },
-  country: { type: String },
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  country: { type: String, required: true },
 })
 
 const orderSchema = new Schema<TOrder>({
-  productName: { type: String },
-  price: { type: Number },
-  quantity: { type: Number },
+  productName: { type: String, required: true },
+  price: { type: Number, required: true },
+  quantity: { type: Number, required: true },
 })
 
-const userSchema = new Schema<TUser, UserModel, UserMethod>({
-  userId: { type: Number, unique: true },
-  username: { type: String, unique: true },
+const userSchema = new Schema<TUser, UserModel>({
+  userId: { type: Number, unique: true, required: true },
+  username: { type: String, unique: true, required: true },
   password: {
     type: String,
     maxlength: [20, "Password can not be more than 20 characters"],
+    required: true,
   },
-  fullName: { type: fullNameSchema },
-  age: { type: Number },
-  email: { type: String },
-  isActive: { type: Boolean, default: true },
-  hobbies: [{ type: String }],
+  fullName: { type: fullNameSchema, required: true },
+  age: { type: Number, required: true },
+  email: { type: String, required: true },
+  isActive: { type: Boolean, default: true, required: true },
+  hobbies: [{ type: String, required: true }],
   address: { type: addressSchema },
   orders: [{ type: orderSchema }],
 })
@@ -56,7 +50,7 @@ userSchema.pre("save", async function (next) {
 
 userSchema.post("save", async function (doc, next) {
   try {
-    const user = await User.findById(doc._id).select("-password")
+    const user = await User.findById(doc._id).select("-password -orders")
     if (user) {
       Object.assign(doc, user)
     }
@@ -67,14 +61,10 @@ userSchema.post("save", async function (doc, next) {
   }
 })
 
-// userSchema.statics.isUserExists = async function (
-//   userId: any,
-// ): Promise<TUser | null> {
-//   const existingUser = await User.findById(userId)
-//   return existingUser
-// }
-userSchema.methods.isUserExists = async function (userId: any) {
-  const existingUser = await User.findOne({ userId })
+userSchema.statics.isUserExists = async function (
+  userId: number | string,
+): Promise<TUser | null> {
+  const existingUser = await this.findOne({ userId: userId })
   return existingUser
 }
 export const User = model<TUser, UserModel>("User", userSchema)

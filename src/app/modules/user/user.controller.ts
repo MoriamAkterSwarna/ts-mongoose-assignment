@@ -6,7 +6,6 @@ import { UserZodSchema } from "./user.validation"
 const createUser = async (req: Request, res: Response) => {
   try {
     const query = req.body
-    // console.log(req.body, "body")
 
     const zodValidateData = UserZodSchema.parse(query)
     const result = await UserServices.createUserDB(zodValidateData)
@@ -45,8 +44,8 @@ const getAllUser = async (req: Request, res: Response) => {
 }
 const getSingleUser = async (req: Request, res: Response) => {
   try {
-    const id = req.params.id
-    const result = await UserServices.getSingleUserFromDB(id)
+    const { userId } = req.params
+    const result = await UserServices.getSingleUserFromDB(userId)
 
     res.status(200).json({
       success: true,
@@ -108,7 +107,6 @@ const addOrder = async (req: Request, res: Response) => {
   try {
     const { productName, price, quantity } = req.body
     const id = req.params.userId
-    // console.log(req.params, "params")
 
     const result = await UserServices.addOrdersToDB(id, [
       { productName, price, quantity },
@@ -117,7 +115,7 @@ const addOrder = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Order added successfully!",
-      data: result,
+      data: null,
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -156,7 +154,6 @@ const getTotalPrice = async (req: Request, res: Response) => {
   try {
     const id = req.params.userId
     const result = await UserServices.getTotalPriceDB(id)
-    console.log(result, "res con")
 
     res.status(200).json({
       success: true,
