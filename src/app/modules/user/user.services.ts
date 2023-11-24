@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TOrder, TUser } from "./user.interface"
 import { User } from "./user.model"
 
@@ -88,7 +89,7 @@ const getTotalPriceDB = async (id: string) => {
     throw new Error("user do not exist")
   }
   const user = await User.findOne({ userId: id })
-  console.log(user, "user")
+  // console.log(user, "user")
   const result = await User.aggregate([
     { $match: { userId: userIdNumber } },
     { $unwind: "$orders" },
@@ -102,7 +103,7 @@ const getTotalPriceDB = async (id: string) => {
     },
   ])
 
-  console.log(result, "result")
+  // console.log(result, "result")
   return result[0]?.totalPrice || 0
 }
 export const UserServices = {

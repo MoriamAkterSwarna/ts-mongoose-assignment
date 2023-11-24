@@ -20,7 +20,10 @@ const createUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "something went wrong",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "User not Found",
+      },
     })
   }
 }
@@ -38,7 +41,10 @@ const getAllUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "No user Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "User not Found",
+      },
     })
   }
 }
@@ -57,7 +63,10 @@ const getSingleUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "User not Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "User not Found",
+      },
     })
   }
 }
@@ -78,7 +87,10 @@ const updateSingleUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "User not Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "User not Found",
+      },
     })
   }
 }
@@ -97,7 +109,10 @@ const deleteUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "User not Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "User not Found",
+      },
     })
   }
 }
@@ -121,7 +136,10 @@ const addOrder = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "Orders not Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "Order not Found",
+      },
     })
   }
 }
@@ -145,7 +163,10 @@ const getOrder = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "Order not Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "Order not Found",
+      },
     })
   }
 }
@@ -164,7 +185,10 @@ const getTotalPrice = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || "Total price not Found",
-      error: error,
+      error: {
+        code: error.code || 500,
+        description: error.message || "Total price not Found",
+      },
     })
   }
 }
